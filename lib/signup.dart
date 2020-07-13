@@ -305,12 +305,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
         elevation: 5.0,
         onPressed: () {
           setState(() {
-            c = Color(0xff34eb61);
-            _emailID = emailCont.text;
-            _password = passCont.text;
+            if (emailCont.text == "" ||
+                nameCont.text == "" ||
+                bgroupCont.text == "" ||
+                mobCont.text == "" ||
+                passCont.text == "" ||
+                pass2Cont.text == "") {
+              print("All details not entered");
+              //Give alert to enter all details
+            } else if (passCont.text != pass2Cont.text) {
+              print("Passwords do not match");
+              //Give alert to check passwords
+            } else {
+              c = Color(0xff34eb61);
+              _emailID = emailCont.text;
+              _password = passCont.text;
+            }
           });
           print('SignUp Button Pressed');
-          _makePostRequest();
+          _makeSignUpRequest();
         },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
@@ -331,8 +344,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void _makePostRequest() async {
-    String url = 'http://18.217.223.174:8000/signin';
+  void _makeSignUpRequest() async {
+    String url = 'http://18.217.223.174:8000/signup';
     //Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8'};
     //String json = '{"uname": "$_emailID", "passwd": "$_password"}';
     var response = await http.post(
