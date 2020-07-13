@@ -5,14 +5,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'signup.dart';
+
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
-  Color c =  Color(0xFFFFFFFF);
+  Color c = Color(0xFFFFFFFF);
   var _emailID = null;
   var _password = null;
 
@@ -97,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       child: RaisedButton(
         elevation: 5.0,
-        onPressed: (){
+        onPressed: () {
           setState(() {
             c = Color(0xff34eb61);
             _emailID = emailCont.text;
@@ -105,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
           });
           print('Login Button Pressed');
           _makePostRequest();
-        }, 
+        },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -125,19 +126,48 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _makePostRequest() async{
+  Widget _buildGotoSignUpBtn() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 25.0),
+      width: double.infinity,
+      child: RaisedButton(
+        elevation: 5.0,
+        onPressed: () {
+          print('Goto SignUp Button Pressed');
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return SignUpScreen();
+          }));
+        },
+        padding: EdgeInsets.all(15.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        color: c,
+        child: Text(
+          'New User? SignUp',
+          style: TextStyle(
+            color: Color(0xFF527DAA),
+            letterSpacing: 1.5,
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'OpenSans',
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _makePostRequest() async {
     String url = 'http://18.217.223.174:8000/signin';
     //Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8'};
     //String json = '{"uname": "$_emailID", "passwd": "$_password"}';
     var response = await http.post(
-      url, 
+      url,
       headers: <String, String>{
-        'Content-Type' : 'application/json; charset=UTF-8',
-      }, 
-      body: jsonEncode(<String, String>{
-        'uname': _emailID,
-        'passwd': _password
-      }),
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body:
+          jsonEncode(<String, String>{'uname': _emailID, 'passwd': _password}),
     );
     int status = response.statusCode;
     Map<String, dynamic> data = json.decode(response.body);
@@ -195,6 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 30.0),
                       _buildPasswordTF(),
                       _buildLoginBtn(),
+                      _buildGotoSignUpBtn(),
                     ],
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nitc_health_care/home.dart';
 import 'login.dart';
+import 'login.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Login UI',
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+      home: LoginScreen(),
     );
   }
 }
