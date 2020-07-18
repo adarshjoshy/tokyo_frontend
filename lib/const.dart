@@ -5,6 +5,11 @@ final kHintTextStyle = TextStyle(
   fontFamily: 'OpenSans',
 );
 
+final kHintTextStyle2 = TextStyle(
+  color: Colors.blueGrey,
+  fontFamily: 'OpenSans',
+);
+
 final kLabelStyle = TextStyle(
   color: Colors.white,
   fontWeight: FontWeight.bold,
@@ -23,7 +28,19 @@ final kBoxDecorationStyle = BoxDecoration(
   ],
 );
 
-const blue = Color(0xFF6CA8F1); 
+final kBoxDecorationStyle2 = BoxDecoration(
+  color: Colors.white,
+  borderRadius: BorderRadius.circular(10.0),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black12,
+      blurRadius: 6.0,
+      offset: Offset(0, 2),
+    ),
+  ],
+);
+
+const blue = Color(0xFF6CA8F1);
 const mainBgColor = Color(0xFFf2f2f2);
 
 const USER_IMAGE = 'https://www.pngrepo.com/download/284184/doctor.png';
