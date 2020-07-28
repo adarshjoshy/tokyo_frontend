@@ -1,11 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'const.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'signup.dart';
+import './globals.dart';
+import './home.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,13 +18,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   Color c = Color(0xFFFFFFFF);
-  var _emailID = null;
+  var _uname = null;
   var _password = null;
 
-  final emailCont = TextEditingController();
+  final unameCont = TextEditingController();
   final passCont = TextEditingController();
 
-  Widget _buildEmailTF() {
+  Widget _buildUnameTF() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -34,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
-            controller: emailCont,
+            controller: unameCont,
             keyboardType: TextInputType.text,
             style: TextStyle(
               color: Colors.white,
@@ -99,13 +103,17 @@ class _LoginScreenState extends State<LoginScreen> {
       child: RaisedButton(
         elevation: 5.0,
         onPressed: () {
+          print('Login Button Pressed');
           setState(() {
             c = Color(0xff34eb61);
-            _emailID = emailCont.text;
+            _uname = unameCont.text;
             _password = passCont.text;
+            if (_uname == "" || _password == "") {
+              print("Give Alert: All Details not Entered");
+            } else {
+              _makePostRequest();
+            }
           });
-          print('Login Button Pressed');
-          _makePostRequest();
         },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
@@ -158,20 +166,33 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _makePostRequest() async {
-    String url = 'http://18.217.223.174:8000/signin';
+    print('Request sent');
     //Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8'};
     //String json = '{"uname": "$_emailID", "passwd": "$_password"}';
     var response = await http.post(
-      url,
+      url + 'signin',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body:
-          jsonEncode(<String, String>{'uname': _emailID, 'passwd': _password}),
+      body: jsonEncode(<String, String>{'uname': _uname, 'passwd': _password}),
     );
     int status = response.statusCode;
     Map<String, dynamic> data = json.decode(response.body);
-    print("Response status from server: $status message: ${data['login']}");
+    print("Response status from server: $status message: ${data['token']}");
+    if (data['ERROR'] != null) {
+      print(data['ERROR']);
+    } else {
+      user['isLoggedIn'] = 1;
+      user['token'] = data['token'];
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setInt('isLoggedIn', 1);
+      prefs.setString('token', data['token']);
+
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        return MyHomePage();
+      }));
+    }
   }
 
   @override
@@ -221,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: 30.0),
-                      _buildEmailTF(),
+                      _buildUnameTF(),
                       SizedBox(height: 30.0),
                       _buildPasswordTF(),
                       _buildLoginBtn(),

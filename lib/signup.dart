@@ -5,6 +5,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import './globals.dart';
+
 class SignUpScreen extends StatefulWidget {
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
@@ -12,13 +14,16 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   Color c = Color(0xFFFFFFFF);
-  var _emailID = null;
-  var _password = null;
 
+  var _name = null;
+  var _uname = null;
+  var _bgroup = null;
+  var _mob = null;
+  var _password = null;
   var _genderSelected;
 
   final nameCont = TextEditingController();
-  final emailCont = TextEditingController();
+  final unameCont = TextEditingController();
   final bgroupCont = TextEditingController();
   final mobCont = TextEditingController();
   final passCont = TextEditingController();
@@ -60,7 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildEmailTF() {
+  Widget _buildUnameTF() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -74,7 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
-            controller: emailCont,
+            controller: unameCont,
             keyboardType: TextInputType.text,
             style: TextStyle(
               color: Colors.white,
@@ -304,10 +309,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: RaisedButton(
         elevation: 5.0,
         onPressed: () {
+          print('SignUp Button Pressed');
           setState(() {
-            if (emailCont.text == "" ||
+            if (unameCont.text == "" ||
                 nameCont.text == "" ||
                 bgroupCont.text == "" ||
+                _genderSelected == null ||
                 mobCont.text == "" ||
                 passCont.text == "" ||
                 pass2Cont.text == "") {
@@ -318,12 +325,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               //Give alert to check passwords
             } else {
               c = Color(0xff34eb61);
-              _emailID = emailCont.text;
+              _name = nameCont.text;
+              _uname = unameCont.text;
+              _bgroup = bgroupCont.text;
+              _mob = mobCont.text;
               _password = passCont.text;
+
+              _makeSignUpRequest();
             }
           });
-          print('SignUp Button Pressed');
-          _makeSignUpRequest();
         },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
@@ -345,20 +355,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void _makeSignUpRequest() async {
-    String url = 'http://18.217.223.174:8000/signup';
     //Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8'};
     //String json = '{"uname": "$_emailID", "passwd": "$_password"}';
     var response = await http.post(
-      url,
+      url + 'signup',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body:
-          jsonEncode(<String, String>{'uname': _emailID, 'passwd': _password}),
+      body: jsonEncode(<String, String>{
+        'name': _name,
+        'uname': _uname,
+        'gnd': _genderSelected,
+        'bgroup': _bgroup,
+        'mob': _mob,
+        'passwd': _password
+      }),
     );
     int status = response.statusCode;
     Map<String, dynamic> data = json.decode(response.body);
-    print("Response status from server: $status message: ${data['login']}");
+    if (data['ERROR'] != null) {
+      print("ERROR: ${data['ERROR']}");
+    } else {
+      print("Give Alert: Signup Successful. Login to continue");
+      Navigator.pop(context);
+    }
+    print("Response status from server: $status message: ${data['status']}");
   }
 
   @override
@@ -410,7 +431,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(height: 30.0),
                       _buildNameTF(),
                       SizedBox(height: 25.0),
-                      _buildEmailTF(),
+                      _buildUnameTF(),
                       SizedBox(height: 25.0),
                       _buildBGroupTF(),
                       SizedBox(height: 25.0),
